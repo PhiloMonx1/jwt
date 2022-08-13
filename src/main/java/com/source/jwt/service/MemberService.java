@@ -3,7 +3,7 @@ package com.source.jwt.service;
 import com.source.jwt.model.Member;
 import com.source.jwt.model.dto.MemberResponseDto;
 import com.source.jwt.repository.MemberRepository;
-import com.source.jwt.security.jwt.SecurityUtil;
+import com.source.jwt.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

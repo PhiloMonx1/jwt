@@ -1,4 +1,4 @@
-package com.source.jwt.security.jwt;
+package com.source.jwt.security;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

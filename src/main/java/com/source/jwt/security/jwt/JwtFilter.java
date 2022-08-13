@@ -1,5 +1,10 @@
 package com.source.jwt.security.jwt;
 
+import com.source.jwt.model.Code;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,11 +31,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		String jwt = resolveToken(request);
 
-		if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-			Authentication authentication = tokenProvider.getAuthentication(jwt);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+		if(jwt == null){
+			request.setAttribute("exception", Code.UNKNOWN_ERROR.getCode());
 		}
 
+		try {
+			if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+				Authentication authentication = tokenProvider.getAuthentication(jwt);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
+		} catch (ExpiredJwtException e){
+			request.setAttribute("exception", Code.EXPIRED_TOKEN.getCode());
+		} catch (MalformedJwtException e){
+			request.setAttribute("exception", Code.WRONG_TYPE_TOKEN.getCode());
+		} catch (SignatureException e){
+			request.setAttribute("exception", Code.WRONG_TYPE_TOKEN.getCode());
+		} catch(JwtException e){
+			request.setAttribute("exception", Code.UNKNOWN_ERROR);
+		}
 		filterChain.doFilter(request, response);
 	}
 
