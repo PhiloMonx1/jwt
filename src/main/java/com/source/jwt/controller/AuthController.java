@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+
 //**
 @RestController
 @RequestMapping("/sign")
@@ -25,8 +27,13 @@ public class AuthController {
 	}
 
 	@PostMapping("/singin")
-	public ResponseEntity<TokenDto> login(@RequestBody MemberRequestDto memberRequestDto) {
-		return ResponseEntity.ok(authService.login(memberRequestDto));
+	public TokenDto login(@RequestBody MemberRequestDto memberRequestDto, HttpServletResponse httpServletResponse) {
+		TokenDto tokenDto = authService.login(memberRequestDto); // 원래 리턴은 ResponseEntity<TokenDto>였고, 얘가 리턴 값에 들어갔음 밑에서 헤더로 다 빼준거임 ㅇㅇ 맴버 자체를 리턴하거나 스트링 리턴도 나쁘지 않을듯 ㅇㅇㅇ
+		httpServletResponse.setHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
+		httpServletResponse.setHeader("Refresh-Token", tokenDto.getRefreshToken());
+		httpServletResponse.setHeader("Access-Token-Expire-Time", String.valueOf(tokenDto.getAccessTokenExpiresIn()));
+//		return "환영합니다. "+memberRequestDto.getUsername() + "님";
+		return tokenDto;
 	}
 
 	@PostMapping("/reissue")

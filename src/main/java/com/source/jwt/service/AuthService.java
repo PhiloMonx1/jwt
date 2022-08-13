@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.regex.Pattern;
+
 //**
 @Service
 @RequiredArgsConstructor
@@ -30,10 +32,14 @@ public class AuthService {
 
 	@Transactional
 	public MemberResponseDto signup(MemberRequestDto memberRequestDto) {
-		if (memberRepository.existsByUsername(memberRequestDto.getUsername())) {
-			throw new RuntimeException("이미 가입되어 있는 유저입니다");
+		if(!(Pattern.matches("[a-zA-Z0-9]*$",memberRequestDto.getUsername()) && (memberRequestDto.getUsername().length() > 3 && memberRequestDto.getUsername().length() <13)
+				&& Pattern.matches("[a-zA-Z0-9]*$",memberRequestDto.getPassword()) && (memberRequestDto.getPassword().length() > 3 && memberRequestDto.getPassword().length() <33))){
+			throw new IllegalArgumentException("닉네임 혹은 비밀번호 조건을 확인해주세요.");
 		}
-
+		if (memberRepository.existsByUsername(memberRequestDto.getUsername())) {
+			throw new IllegalArgumentException("중복된 닉네임입니다.");
+		} else if (!memberRequestDto.getPassword().equals(memberRequestDto.getPassword2()))
+			throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
 		Member member = memberRequestDto.toMember(passwordEncoder);
 		return MemberResponseDto.of(memberRepository.save(member));
 	}
